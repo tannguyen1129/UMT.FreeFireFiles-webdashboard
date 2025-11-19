@@ -1,65 +1,126 @@
-import Image from "next/image";
+'use client'; 
 
-export default function Home() {
+import { useState } from 'react';
+import axios from 'axios';
+import { useRouter } from 'next/navigation'; // 👈 Import hook điều hướng
+
+export default function LoginPage() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter(); // 👈 Khởi tạo router
+
+  // 🚀 SỬA LẠI API URL:
+  // Dashboard (chạy trên trình duyệt) phải gọi IP Tĩnh của WSL
+  const API_GATEWAY_URL = process.env.NEXT_PUBLIC_API_GATEWAY_URL || 'http://localhost:3000';
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault(); 
+    setError(null); 
+    
+    // (Kiểm tra xem đây có phải là email admin không)
+    if (!email.endsWith('@green.aqi')) {
+      setError('Quyền truy cập bị từ chối. Đây là cổng đăng nhập nội bộ.');
+      return;
+    }
+
+    try {
+      // 4. Gọi API /auth/login
+      const response = await axios.post(
+        `${API_GATEWAY_URL}/auth/login`,
+        {
+          email: email,
+          password: password,
+        }
+      );
+
+      // 5. 🚀 SỬA LỖI: LƯU TOKEN VÀ CHUYỂN TRANG
+      const token = response.data.access_token;
+      localStorage.setItem('admin_token', token); // Lưu token
+      
+      // Chuyển đến trang Dashboard
+      router.push('/dashboard'); 
+
+    } catch (err: any) {
+      console.error('Lỗi đăng nhập:', err);
+      if (err.response) {
+        setError(err.response.data.message || 'Email hoặc mật khẩu không đúng.');
+      } else {
+        setError('Không thể kết nối đến máy chủ. Backend (WSL) đã chạy chưa?');
+      }
+    }
+  };
+
+  // 7. Giao diện (JSX và Tailwind CSS)
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-gray-100">
+      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
+        <h1 className="text-3xl font-bold text-center text-gray-900">
+          Green-AQI Dashboard
+        </h1>
+        <p className="text-center text-gray-600">
+          Đăng nhập (Admin / Cơ quan chức năng)
+        </p>
+
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          {/* Hiển thị lỗi (nếu có) */}
+          {error && (
+            <div className="p-3 text-sm text-red-700 bg-red-100 rounded-lg">
+              {error}
+            </div>
+          )}
+
+          {/* Email */}
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+              Email
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-3 py-2 mt-1 text-gray-900 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+              placeholder="admin@green.aqi"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+          </div>
+
+          {/* Password */}
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Mật khẩu
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-3 py-2 mt-1 text-gray-900 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+              placeholder="••••••••"
+            />
+          </div>
+
+          {/* Nút Đăng nhập */}
+          <div>
+            <button
+              type="submit"
+              className="w-full px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+            >
+              Đăng nhập
+            </button>
+          </div>
+        </form>
+      </div>
+    </main>
   );
 }
