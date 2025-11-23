@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { MdLogout } from "react-icons/md";
 
 // --- (Hook useAuth giữ nguyên) ---
 const useAuth = () => {
@@ -20,27 +21,38 @@ const useAuth = () => {
 };
 // --- (Hết hook useAuth) ---
 
-// --- 🚀 COMPONENT MỚI: Sidebar ---
 function Sidebar() {
   const pathname = usePathname(); 
+  const router = useRouter();
   
   const navItems = [
+    { name: 'Tổng quan Analytics', href: '/dashboard/analytics' },
     { name: 'Quản lý Sự cố', href: '/dashboard/incidents' },
     { name: 'Quản lý Loại Sự cố', href: '/dashboard/incident-types' },
     { name: 'Bản đồ Giám sát', href: '/dashboard/map' },
   ];
 
+  // 🚀 HÀM ĐĂNG XUẤT
+  const handleLogout = () => {
+    if (confirm('Bạn có chắc chắn muốn đăng xuất?')) {
+      localStorage.removeItem('admin_token'); // Xóa token
+      router.push('/'); // Về trang Login
+    }
+  };
+
   return (
-    <nav className="w-64 bg-white shadow-md">
-      <div className="p-4">
-        <h2 className="text-xl font-bold text-green-600">Admin Menu</h2>
+    <nav className="w-64 bg-white shadow-md flex flex-col h-screen">
+      <div className="p-4 border-b">
+        <h2 className="text-xl font-bold text-green-600">Green-AQI Admin</h2>
       </div>
-      <ul className="space-y-2 p-2">
+      
+      {/* Danh sách Menu (Dãn nở để đẩy nút logout xuống đáy) */}
+      <ul className="space-y-2 p-2 flex-1">
         {navItems.map((item) => (
           <li key={item.name}>
             <Link
               href={item.href}
-              className={`flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-100 ${
+              className={`flex items-center p-3 rounded-lg text-gray-700 hover:bg-green-50 transition-colors ${
                 pathname === item.href ? 'bg-green-100 text-green-700 font-bold' : ''
               }`}
             >
@@ -49,10 +61,20 @@ function Sidebar() {
           </li>
         ))}
       </ul>
+
+      {/* 🚀 NÚT ĐĂNG XUẤT Ở ĐÁY */}
+      <div className="p-4 border-t">
+        <button
+          onClick={handleLogout}
+          className="flex items-center w-full p-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors font-medium"
+        >
+          <MdLogout className="mr-2 text-xl" />
+          <span>Đăng xuất</span>
+        </button>
+      </div>
     </nav>
   );
 }
-// --- (Hết component Sidebar) ---
 
 
 export default function DashboardLayout({
