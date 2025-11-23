@@ -1,6 +1,5 @@
-import axios from 'axios';
+import axiosInstance from '../../lib/axios';
 
-// Định nghĩa kiểu dữ liệu (type) cho Incident
 export interface Incident {
   incident_id: string;
   description: string;
@@ -9,53 +8,22 @@ export interface Incident {
   incidentType: {
     type_name: string;
   };
+
+  image_url?: string; 
+  location: {
+    type: 'Point';
+    coordinates: [number, number]; // [Longitude, Latitude]
+  };
 }
 
-// Các trạng thái hợp lệ
-export const incidentStatuses = [
-  'pending', 
-  'verified', 
-  'in_progress', 
-  'resolved', 
-  'rejected'
-];
+export const incidentStatuses = ['pending', 'verified', 'in_progress', 'resolved', 'rejected'];
 
-const API_GATEWAY_URL = process.env.NEXT_PUBLIC_API_GATEWAY_URL || 'http://localhost:3000';
-
-/**
- * Lấy token từ localStorage (chỉ chạy ở client)
- */
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('admin_token');
-  return {
-    Authorization: `Bearer ${token}`,
-  };
-};
-
-/**
- * 1. Lấy TẤT CẢ sự cố (cho Admin)
- */
 export const fetchIncidents = async (): Promise<Incident[]> => {
-  const response = await axios.get(`${API_GATEWAY_URL}/aqi/incidents`, {
-    headers: getAuthHeaders(),
-  });
+  const response = await axiosInstance.get('/aqi/incidents');
   return response.data as Incident[];
 };
 
-/**
- * 2. Cập nhật TRẠNG THÁI của một sự cố
- */
-export const updateIncidentStatus = async (
-  incidentId: string, 
-  status: string
-): Promise<Incident> => {
-  
-  const response = await axios.patch(
-    `${API_GATEWAY_URL}/aqi/incidents/${incidentId}/status`, 
-    { status: status }, // 👈 Đây là DTO (UpdateIncidentStatusDto)
-    {
-      headers: getAuthHeaders(),
-    }
-  );
+export const updateIncidentStatus = async (incidentId: string, status: string): Promise<Incident> => {
+  const response = await axiosInstance.patch(`/aqi/incidents/${incidentId}/status`, { status });
   return response.data as Incident;
 };

@@ -1,25 +1,23 @@
 'use client';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { 
   Incident, 
   fetchIncidents, 
   updateIncidentStatus, 
   incidentStatuses 
 } from './incidentService';
+import { MdMap, MdImageNotSupported } from "react-icons/md"; // Icon hỗ trợ
 
-export default function DashboardPage() {
+export default function IncidentsPage() {
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [updatingId, setUpdatingId] = useState<string | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        setIsLoading(true);
         const data = await fetchIncidents();
         setIncidents(data);
-        setError(null);
       } catch (err: any) {
         setError(err.message || 'Không thể tải dữ liệu sự cố');
       } finally {
@@ -29,193 +27,124 @@ export default function DashboardPage() {
     loadData();
   }, []);
 
-  const handleStatusChange = useCallback(async (incidentId: string, newStatus: string) => {
-    setUpdatingId(incidentId);
-    
+  const handleStatusChange = async (incidentId: string, newStatus: string) => {
     try {
       const updatedIncident = await updateIncidentStatus(incidentId, newStatus);
-      
-      setIncidents((prevIncidents) =>
-        prevIncidents.map((inc) =>
-          inc.incident_id === incidentId 
-            ? { ...inc, status: updatedIncident.status }
-            : inc
+      setIncidents((prev) =>
+        prev.map((inc) =>
+          inc.incident_id === incidentId ? { ...inc, status: updatedIncident.status } : inc
         )
       );
-      setError(null);
     } catch (err: any) {
-      setError(`Lỗi cập nhật: ${err.message}`);
-    } finally {
-      setUpdatingId(null);
+      alert(`Lỗi cập nhật: ${err.message}`);
     }
-  }, []);
+  };
 
-  const getStatusStyle = useCallback((status: string) => {
-    const styles: Record<string, string> = {
-      pending: 'bg-yellow-100 text-yellow-900 border border-yellow-300',
-      resolved: 'bg-green-100 text-green-900 border border-green-300',
-      in_progress: 'bg-blue-100 text-blue-900 border border-blue-300'
-    };
-    return styles[status] || 'bg-gray-100 text-gray-900 border border-gray-300';
-  }, []);
-
-  if (isLoading) {
-    return (
-      <div className="p-8 bg-gray-50 min-h-screen">
-        <h1 className="text-3xl font-bold mb-6 text-gray-900">Quản lý Sự cố</h1>
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="animate-pulse space-y-4">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="h-14 bg-gray-100 rounded" />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error && incidents.length === 0) {
-    return (
-      <div className="p-8 bg-gray-50 min-h-screen">
-        <div className="bg-red-50 border-2 border-red-300 rounded-lg p-6 max-w-2xl">
-          <h2 className="text-xl font-bold text-red-900 mb-2">Lỗi</h2>
-          <p className="text-red-800 mb-4 font-medium">{error}</p>
-          <button 
-            onClick={() => window.location.reload()}
-            className="px-5 py-2.5 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors shadow-sm"
-          >
-            Thử lại
-          </button>
-        </div>
-      </div>
-    );
-  }
+  if (isLoading) return <div className="p-8">Đang tải...</div>;
+  if (error) return <div className="p-8 text-red-500">Lỗi: {error}</div>;
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Quản lý Sự cố</h1>
-        <div className="bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200">
-          <span className="text-sm text-gray-600">Tổng số: </span>
-          <span className="text-sm font-bold text-gray-900">{incidents.length}</span>
-          <span className="text-sm text-gray-600"> sự cố</span>
-        </div>
-      </div>
+    <div className="p-8">
+      <h1 className="text-3xl font-bold mb-6 text-gray-800">Quản lý Sự cố</h1>
+      <div className="overflow-x-auto bg-white rounded-lg shadow border border-gray-200">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hình ảnh</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Loại / Mô tả</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vị trí</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày báo cáo</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hành động</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {incidents.map((incident) => {
+              // Xử lý tọa độ (GeoJSON: [lng, lat])
+              const lng = incident.location?.coordinates[0];
+              const lat = incident.location?.coordinates[1];
+              const mapLink = lat && lng ? `https://www.google.com/maps?q=${lat},${lng}` : '#';
 
-      {/* Error Banner */}
-      {error && (
-        <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-600 rounded-r-lg">
-          <p className="text-red-900 text-sm font-medium">{error}</p>
-        </div>
-      )}
+              return (
+                <tr key={incident.incident_id} className="hover:bg-gray-50 transition-colors">
+                  {/* 1. CỘT HÌNH ẢNH */}
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {incident.image_url ? (
+                      <a href={incident.image_url} target="_blank" rel="noopener noreferrer">
+                        <img 
+                          src={incident.image_url} 
+                          alt="Evidence" 
+                          className="h-16 w-16 object-cover rounded-md border border-gray-300 hover:scale-110 transition-transform"
+                        />
+                      </a>
+                    ) : (
+                      <div className="h-16 w-16 bg-gray-100 rounded-md flex items-center justify-center text-gray-400">
+                        <MdImageNotSupported size={24} />
+                      </div>
+                    )}
+                  </td>
 
-      {/* Table Container */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-300">
-            <thead className="bg-gray-100">
-              <tr>
-                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-900 uppercase tracking-wider">
-                  Loại Sự cố
-                </th>
-                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-900 uppercase tracking-wider">
-                  Mô tả
-                </th>
-                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-900 uppercase tracking-wider">
-                  Trạng thái
-                </th>
-                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-900 uppercase tracking-wider">
-                  Ngày báo cáo
-                </th>
-                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-gray-900 uppercase tracking-wider">
-                  Hành động
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {incidents.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="px-6 py-16 text-center">
-                    <div className="text-gray-500">
-                      <svg className="mx-auto h-16 w-16 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <p className="text-base font-semibold text-gray-700">Chưa có sự cố nào</p>
-                      <p className="text-sm text-gray-500 mt-1">Danh sách sự cố sẽ hiển thị tại đây</p>
+                  {/* 2. CỘT THÔNG TIN */}
+                  <td className="px-6 py-4">
+                    <div className="text-sm font-bold text-gray-900">{incident.incidentType?.type_name ?? 'Khác'}</div>
+                    <div className="text-sm text-gray-500 truncate max-w-xs" title={incident.description}>
+                      {incident.description || 'Không có mô tả'}
                     </div>
                   </td>
+
+                  {/* 3. CỘT VỊ TRÍ */}
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {lat && lng ? (
+                      <a 
+                        href={mapLink} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800 flex items-center gap-1 text-sm"
+                      >
+                        <MdMap /> Xem Map
+                        <span className="text-xs text-gray-400 block">({lat.toFixed(3)}, {lng.toFixed(3)})</span>
+                      </a>
+                    ) : (
+                      <span className="text-gray-400 text-xs">Không xác định</span>
+                    )}
+                  </td>
+
+                  {/* 4. CỘT TRẠNG THÁI */}
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      incident.status === 'pending' ? 'bg-red-100 text-red-800' : 
+                      incident.status === 'verified' ? 'bg-orange-100 text-orange-800' :
+                      incident.status === 'resolved' ? 'bg-green-100 text-green-800' :
+                      'bg-gray-100 text-gray-800'
+                    }`}>
+                      {incident.status.toUpperCase()}
+                    </span>
+                  </td>
+
+                  {/* 5. NGÀY GIỜ */}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {new Date(incident.created_at).toLocaleString('vi-VN')}
+                  </td>
+
+                  {/* 6. HÀNH ĐỘNG */}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <select
+                      value={incident.status}
+                      onChange={(e) => handleStatusChange(incident.incident_id, e.target.value)}
+                      className="block w-full pl-3 pr-8 py-2 text-sm border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
+                    >
+                      {incidentStatuses.map((status) => (
+                        <option key={status} value={status}>
+                          {status}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
                 </tr>
-              ) : (
-                incidents.map((incident) => (
-                  <tr 
-                    key={incident.incident_id} 
-                    className="hover:bg-gray-50 transition-colors duration-150"
-                  >
-                    {/* Loại sự cố - TEXT ĐẬM HƠN */}
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm font-bold text-gray-900">
-                        {incident.incidentType?.type_name ?? 'N/A'}
-                      </span>
-                    </td>
-
-                    {/* Mô tả - TEXT RÕ HƠN */}
-                    <td className="px-6 py-4">
-                      <p className="text-sm text-gray-800 font-medium max-w-xs truncate" title={incident.description}>
-                        {incident.description}
-                      </p>
-                    </td>
-
-                    {/* Trạng thái - BADGE ĐẬM HƠN VỚI BORDER */}
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-3 py-1.5 inline-flex text-xs font-bold rounded-md ${getStatusStyle(incident.status)}`}>
-                        {incident.status}
-                      </span>
-                    </td>
-
-                    {/* Ngày - TEXT ĐẬM HƠN */}
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm text-gray-800 font-medium">
-                        {new Date(incident.created_at).toLocaleString('vi-VN', {
-                          year: 'numeric',
-                          month: '2-digit',
-                          day: '2-digit',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
-                      </span>
-                    </td>
-
-                    {/* Hành động - SELECT ĐẬM HƠN */}
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        <select
-                          value={incident.status}
-                          onChange={(e) => handleStatusChange(incident.incident_id, e.target.value)}
-                          disabled={updatingId === incident.incident_id}
-                          className="block w-full px-3 py-2 text-sm font-semibold text-gray-900 bg-white border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:border-gray-400"
-                          aria-label={`Thay đổi trạng thái sự cố ${incident.incident_id}`}
-                        >
-                          {incidentStatuses.map((status) => (
-                            <option key={status} value={status} className="font-medium">
-                              {status}
-                            </option>
-                          ))}
-                        </select>
-                        {updatingId === incident.incident_id && (
-                          <svg className="animate-spin h-5 w-5 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
     </div>
   );
