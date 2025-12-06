@@ -2,11 +2,13 @@ version: '3.8'
 
 services:
   web-admin:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Thay localhost bằng IP Public VPS nếu deploy thật
+        - NEXT_PUBLIC_API_GATEWAY_URL=http://localhost:3000
     container_name: green-aqi-admin
     ports:
-      - "3005:3005" 
-    environment:
-      - NEXT_PUBLIC_API_GATEWAY_URL=http://localhost:3000
-      - PORT=3005 
+      - "3005:3005" # Map cổng 3019 ra ngoài
     restart: always
