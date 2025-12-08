@@ -89,8 +89,8 @@ Sau khi chạy xong, truy cập Web Admin tại: `http://localhost:3005`
 **Bước 1: Clone dự án**
 
 ```bash
-git clone [https://github.com/tannguyen1129/UMT.FreeFireFiles-webdashboard.git](https://github.com/tannguyen1129/UMT.FreeFireFiles-webdashboard.git)
-cd UMT.FreeFireFiles-webdashboard
+git clone https://github.com/tannguyen1129/UMT.FreeFireFiles-webdashboard.git green-aqi-dashboard
+cd green-aqi-dashboard
 ```
 
 **Bước 2: Cài đặt dependencies**
