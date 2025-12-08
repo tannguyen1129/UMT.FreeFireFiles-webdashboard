@@ -1,10 +1,10 @@
 # UMT FreeFireFiles - Web Dashboard
 
-![License][(https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=for-the-badge)](https://opensource.org/licenses/Apache-2.0)
-![Version](https://img.shields.io/badge/version-1.0.0-green.svg)
-![Status](https://img.shields.io/badge/status-Maintained-orange.svg)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=for-the-badge)](https://opensource.org/licenses/Apache-2.0)
+![Version](https://img.shields.io/badge/version-1.0.0-green.svg?style=for-the-badge)
+![Status](https://img.shields.io/badge/status-Maintained-orange.svg?style=for-the-badge)
 
-> **UMT.FreeFireFiles-webdashboard** là hệ thống quản trị (Admin Panel) được thiết kế để quản lý, lưu trữ và phân phối các tệp tin/tài nguyên cho dự án Free Fire Files của UMT.
+> **UMT.FreeFireFiles-webdashboard** là hệ thống quản trị (Admin Panel) được thiết kế để quản lý, lưu trữ và phân phối các tệp tin/tài nguyên cho dự án AQI Navigator của UMT.
 
 ## 📖 Mục lục
 
