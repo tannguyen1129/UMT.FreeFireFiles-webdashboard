@@ -1,36 +1,137 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+````markdown
+# UMT FreeFireFiles - Web Dashboard
 
-## Getting Started
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Version](https://img.shields.io/badge/version-1.0.0-green.svg)
+![Status](https://img.shields.io/badge/status-Maintained-orange.svg)
 
-First, run the development server:
+> **UMT.FreeFireFiles-webdashboard** là hệ thống quản trị (Admin Panel) được thiết kế để quản lý, lưu trữ và phân phối các tệp tin/tài nguyên cho dự án Free Fire Files của UMT.
+
+## 📖 Mục lục
+
+- [Giới thiệu](#-giới-thiệu)
+- [Tính năng chính](#-tính-năng-chính)
+- [Công nghệ sử dụng](#-công-nghệ-sử-dụng)
+- [Yêu cầu hệ thống](#-yêu-cầu-hệ-thống)
+- [Cài đặt](#-cài-đặt)
+- [Cấu hình](#-cấu-hình)
+- [Chạy ứng dụng](#-chạy-ứng-dụng)
+- [Đóng góp](#-đóng-góp)
+- [Tác giả](#-tác-giả)
+
+---
+
+## 📖 Giới thiệu
+
+Dự án này cung cấp giao diện Web trực quan giúp các quản trị viên dễ dàng thao tác với cơ sở dữ liệu tệp tin game, quản lý người dùng và xem thống kê lượt tải xuống/truy cập theo thời gian thực.
+
+## ✨ Tính năng chính
+
+* **Quản lý người dùng (User Management):** Đăng nhập, phân quyền (Admin/Editor).
+* **Quản lý Tệp tin (File Manager):**
+    * Upload file cấu hình/skin/data.
+    * Chỉnh sửa thông tin metadata (phiên bản, ngày cập nhật).
+    * Xóa file lỗi thời.
+* **Thống kê (Analytics):** Biểu đồ trực quan về lượng truy cập và tải xuống.
+* **Tìm kiếm & Lọc:** Tìm nhanh các file theo từ khóa hoặc danh mục.
+* **Giao diện Responsive:** Tương thích tốt trên cả Desktop và Mobile.
+
+## 🛠 Công nghệ sử dụng
+
+Dự án được xây dựng dựa trên các công nghệ:
+
+**Frontend:**
+* [React.js](https://reactjs.org/) / [Vue.js](https://vuejs.org/) *(Chọn 1 trong 2 tùy vào code thực tế của bạn)*
+* [Tailwind CSS](https://tailwindcss.com/) hoặc [Bootstrap](https://getbootstrap.com/)
+* Chart.js (Biểu đồ)
+
+**Backend & Database (Nếu có tích hợp):**
+* Node.js & Express
+* MongoDB / MySQL / Firebase
+
+## 📋 Yêu cầu hệ thống
+
+Trước khi cài đặt, hãy đảm bảo máy tính của bạn đã cài đặt:
+
+* [Node.js](https://nodejs.org/) (Phiên bản 16.x trở lên)
+* [npm](https://www.npmjs.com/) hoặc [Yarn](https://yarnpkg.com/)
+* Git
+
+## ⚙️ Cài đặt
+
+1.  **Clone dự án về máy:**
+
+    ```bash
+    git clone [https://github.com/tannguyen1129/UMT.FreeFireFiles-webdashboard.git](https://github.com/tannguyen1129/UMT.FreeFireFiles-webdashboard.git)
+    cd UMT.FreeFireFiles-webdashboard
+    ```
+
+2.  **Cài đặt các gói phụ thuộc (Dependencies):**
+
+    ```bash
+    # Nếu dùng npm
+    npm install
+
+    # Nếu dùng yarn
+    yarn install
+    ```
+
+## 🔧 Cấu hình
+
+Tạo một file `.env` tại thư mục gốc của dự án và điền các thông tin cấu hình cần thiết (dựa trên file `.env.example` nếu có):
+
+```env
+# Ví dụ cấu hình
+REACT_APP_API_URL=http://localhost:5000/api
+REACT_APP_NAME="UMT Dashboard"
+# Thêm các API Key hoặc Database URL khác tại đây
+````
+
+## 🚀 Chạy ứng dụng
+
+### Môi trường phát triển (Development)
+
+Chạy lệnh sau để khởi động server local (thường là http://localhost:3000):
 
 ```bash
+npm start
+# hoặc
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Môi trường Production
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Để build dự án ra file tĩnh (static files) để deploy lên hosting:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+```
 
-## Learn More
+## 🤝 Đóng góp
 
-To learn more about Next.js, take a look at the following resources:
+Mọi đóng góp đều được hoan nghênh\! Nếu bạn muốn cải thiện dự án, vui lòng làm theo các bước sau:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1.  Fork dự án này.
+2.  Tạo nhánh tính năng mới (`git checkout -b feature/TenTinhNang`).
+3.  Commit thay đổi của bạn (`git commit -m 'Thêm tính năng XYZ'`).
+4.  Push lên nhánh (`git push origin feature/TenTinhNang`).
+5.  Tạo một Pull Request mới.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## ✍️ Tác giả
 
-## Deploy on Vercel
+ **Team UMT.FreeFireFiles** - Đại học Quản lý và Công nghệ Thành phố Hồ Chí Minh
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+* **Lead Developer:** Sơn Tân
+* **AI Engineer:** Võ Ngọc Trâm Anh
+* **Frontend Developer:** Phan Nguyễn Duy Kha
+* **Email:** tandtnt15@gmail.com
+* **Repository Backend:** [Backend Repo](https://github.com/tannguyen1129/UMT.FreeFireFlies)
+* **Repository Frontend Citizen:** [Frontend Citizen Repo](https://github.com/tannguyen1129/UMT.FreeFireFiles-webdashboard.git)
+* **Repository Frontend Admin Dashboard:** [Frontend Admin/Gov Repo](https://github.com/tannguyen1129/UMT.FreeFireFlies-frontend.git)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📄 Giấy phép
+
+Distributed under the Apache 2.0 License. See `LICENSE` for more information.
+
+```
+```
